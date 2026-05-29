@@ -1,0 +1,67 @@
+# This .gitignore file should be placed at the root of your Unity project directory
+
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Mm]emoryCaptures/
+/UserSettings/
+
+# Addressables
+/[Ss]treamingAssets/aa.meta
+/[Ss]treamingAssets/aa/*
+
+# Asset meta data should only be ignored when the asset itself is ignored
+!/[Aa]ssets/**/*.meta
+
+# Visual Studio cache
+.vs/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+# Rider
+.idea/
+*.DotSettings.user
+
+# VS Code
+.vscode/
+
+# Unity generated files
+sysinfo.txt
+
+# Crash reports
+crashlytics-build.properties
+
+# Auto-generated JetBrains Rider plugin
+Assets/Plugins/Editor/JetBrains*
+
+# Android
+.gradle/
+*.apk
+*.aab
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Recordings
+/Recordings/
+
+# Memory profiler
+*.snap
+
+# Ignore generated test coverage
+/CodeCoverage/
