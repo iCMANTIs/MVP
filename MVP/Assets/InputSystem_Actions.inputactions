@@ -62,12 +62,12 @@
                 },
                 {
                     "name": "Next",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "b7230bb6-fc9b-4f52-8b25-f5e19cb2c2ba",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Sprint",
@@ -91,6 +91,24 @@
                     "name": "Interact",
                     "type": "Button",
                     "id": "f74f6394-6272-4c82-80e6-4364fda65b52",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Arm",
+                    "type": "Button",
+                    "id": "ef334a84-5988-4e81-9861-31f2a1bff3c7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Echolocation",
+                    "type": "Button",
+                    "id": "56bd03f8-53f7-46bf-b546-4dd69e3b7157",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -491,6 +509,39 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5a3c13c1-1cc7-4fb4-a691-4f78f2ad42cc",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Arm",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ebeae7d7-a785-4de9-9012-eeb00da61a5b",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Arm",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fd24ad1b-f941-4759-9c6d-540a85d25d39",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Echolocation",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
