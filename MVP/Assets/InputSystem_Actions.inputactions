@@ -514,17 +514,6 @@
                 },
                 {
                     "name": "",
-                    "id": "5a3c13c1-1cc7-4fb4-a691-4f78f2ad42cc",
-                    "path": "<Gamepad>/rightTrigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Arm",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "ebeae7d7-a785-4de9-9012-eeb00da61a5b",
                     "path": "<Gamepad>/buttonNorth",
                     "interactions": "",

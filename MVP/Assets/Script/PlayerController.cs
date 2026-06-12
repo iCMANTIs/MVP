@@ -191,7 +191,7 @@ public class PlayerController : MonoBehaviour
         Quaternion startRotation = transform.rotation;
 
         Vector3 endPosition = vaultPoint.endPoint.position;
-        endPosition = GetGroundedPosition(endPosition); 
+        endPosition = GetGroundedPosition(endPosition);
 
         Quaternion endRotation = vaultPoint.endPoint.rotation;
 
