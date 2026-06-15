@@ -29,6 +29,14 @@ public class PlayerController : MonoBehaviour
     private bool HasTorch;
     private bool torchBusy;
 
+    private bool holdHandPressed;
+
+    public bool HoldHandPressed => holdHandPressed;
+    public Vector2 MoveInput => moveInput;
+    public bool IsCrouching => isCrouching;
+    public bool IsVaulting => isVaulting;
+
+    public Transform cameraTarget;
 
     void Awake()
     {
@@ -41,8 +49,34 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void OnHoldHand(InputValue value)
+    {
+        float triggerValue = value.Get<float>();
+        holdHandPressed = triggerValue > 0.5f;
+        Debug.Log("Player A Hold Hand Pressed: " + holdHandPressed);
+    }
+
+
+    private bool isHoldingHands;
+
+    public void SetHoldingHands(bool holding)
+    {
+        isHoldingHands = holding;
+        animator.SetBool("IsHoldingHands", holding);
+
+        animator.applyRootMotion = !holding;
+    }
+
+    public void SetExternalMove(Vector2 externalMove, float sharedSpeed)
+    {
+        moveInput = externalMove;
+        animator.SetFloat("Speed", sharedSpeed, 0.1f, Time.deltaTime);
+    }
+
+
     public void OnMove(InputValue value)
     {
+        Debug.Log("Sister(PlayerA) Move = " + moveInput);
         moveInput = value.Get<Vector2>();
     }
 
@@ -231,11 +265,31 @@ public class PlayerController : MonoBehaviour
         isVaulting = false;
     }
 
+    public void ForceCrouch(bool crouch)
+    {
+        isCrouching = crouch;
+        animator.SetBool("IsCrouching", isCrouching);
+    }
+
+    private Vector2 lookInput;
+    public Vector2 LookInput => lookInput;
+
+    public void OnLook(InputValue value)
+    {
+        lookInput = value.Get<Vector2>();
+    }
+
 
     void Update()
     {
+        Debug.Log("Sister(PlayerA) Holding = " + isHoldingHands);
+
+        if (isHoldingHands)
+            return;
+
         HandleRotation();
         HandleAnimation();
+
     }
 
     void HandleRotation()
@@ -250,11 +304,19 @@ public class PlayerController : MonoBehaviour
         if (inputAmount < deadZone)
             return;
 
-        Vector3 moveDirection = new Vector3(
-            moveInput.x,
-            0f,
-            moveInput.y
-        ).normalized;
+        Vector3 cameraForward = cameraTarget.forward;
+        cameraForward.y = 0f;
+        cameraForward.Normalize();
+
+        Vector3 cameraRight = cameraTarget.right;
+        cameraRight.y = 0f;
+        cameraRight.Normalize();
+
+        Vector3 moveDirection =
+            cameraForward * moveInput.y +
+            cameraRight * moveInput.x;
+
+        moveDirection.Normalize();
 
         Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
 
