@@ -29,6 +29,13 @@ public class PlayerController : MonoBehaviour
     private bool HasTorch;
     private bool torchBusy;
 
+    [Header("Flash Stun")]
+    public Transform flashOrigin;
+    public float stunRange = 8f;
+    public float stunRadius = 2f;
+    public float stunDuration = 3f;
+    public LayerMask enemyLayer;
+
     private bool holdHandPressed;
 
     public bool HoldHandPressed => holdHandPressed;
@@ -280,9 +287,30 @@ public class PlayerController : MonoBehaviour
     }
 
 
+    public void DoFlashStun()
+    {
+        Collider[] hits = Physics.OverlapSphere(
+            flashOrigin.position,
+            stunRadius,
+            enemyLayer);
+
+        foreach (Collider hit in hits)
+        {
+            EnemyAI enemy =
+                hit.GetComponentInParent<EnemyAI>();
+
+            if (enemy != null)
+            {
+                enemy.Stun(stunDuration);
+
+                Debug.Log("Flash stunned " + enemy.name);
+            }
+        }
+    }
+
     void Update()
     {
-        Debug.Log("Sister(PlayerA) Holding = " + isHoldingHands);
+        //Debug.Log("Sister(PlayerA) Holding = " + isHoldingHands);
 
         if (isHoldingHands)
             return;

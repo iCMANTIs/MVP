@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 45ef6567391c02e4f8d148a68215e687
+guid: 6b76316617443264b8a63e04f4893cea
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -55,8 +55,8 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.32861188
-        functionName: PutFlashlightInHand
+      - time: 0.31842202
+        functionName: PutFlashlightInHolster
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
