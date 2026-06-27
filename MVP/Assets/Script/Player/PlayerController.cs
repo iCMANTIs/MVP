@@ -36,6 +36,9 @@ public class PlayerController : MonoBehaviour
     public float stunDuration = 3f;
     public LayerMask enemyLayer;
 
+    [Header("Whistle")]
+    public PlayerSoundEmitter soundEmitter;
+
     private bool holdHandPressed;
 
     public bool HoldHandPressed => holdHandPressed;
@@ -306,6 +309,37 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("Flash stunned " + enemy.name);
             }
         }
+    }
+
+    public void OnWhistlePushAway(InputValue value)
+    {
+        if (!value.isPressed)
+            return;
+        Debug.Log("PushAway Whistle");
+        if (soundEmitter == null)
+        {
+            Debug.LogError("soundEmitter is NULL ");
+            return;
+        }
+        soundEmitter.EmitPushAwayWhistle();
+    }
+
+    public void OnWhistleLure(InputValue value)
+    {
+        if (!value.isPressed)
+            return;
+        Debug.Log("Lure Whistle");
+        if (soundEmitter != null)
+            soundEmitter.EmitLureWhistle();
+    }
+
+    public void OnWhistleAlert(InputValue value)
+    {
+        if (!value.isPressed)
+            return;
+        Debug.Log("Alert Whistle");
+        if (soundEmitter != null)
+            soundEmitter.EmitAlertWhistle();
     }
 
     void Update()

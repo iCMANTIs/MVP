@@ -47,7 +47,7 @@ public class EnemyVision : MonoBehaviour
                 if (loseSightTimer <= 0f)
                 {
                     seenTarget = null;
-                    //enemyAI.LosePlayer();
+                    enemyAI.LosePlayer();
                 }
             }
         }

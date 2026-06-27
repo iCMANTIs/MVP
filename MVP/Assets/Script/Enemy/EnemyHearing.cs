@@ -15,8 +15,14 @@ public class EnemyHearing : MonoBehaviour
         float distance = Vector3.Distance(transform.position, soundPosition);
 
         if (distance <= loudness)
-        {
             enemyAI.HearSound(soundPosition);
-        }
+    }
+
+    public void ReceiveWhistle(Vector3 soundPosition, float loudness, WhistleType type)
+    {
+        float distance = Vector3.Distance(transform.position, soundPosition);
+
+        if (distance <= loudness)
+            enemyAI.HearWhistle(soundPosition, type);
     }
 }

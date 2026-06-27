@@ -3,17 +3,36 @@ using UnityEngine.InputSystem;
 
 public class PlayerSoundEmitter : MonoBehaviour
 {
+    [Header("Whistle")]
     public float whistleRadius = 15f;
-    public Key whistleKey = Key.H;
 
-    private void Update()
+    public void EmitPushAwayWhistle()
     {
-        if (Keyboard.current == null)
-            return;
+        Debug.Log("Emit PushAway Whistle");
+        SoundManager.Instance.EmitWhistle(
+            transform.position,
+            whistleRadius,
+            WhistleType.PushAway
+        );
+    }
 
-        if (Keyboard.current[whistleKey].wasPressedThisFrame)
-        {
-            SoundManager.Instance.EmitSound(transform.position, whistleRadius);
-        }
+    public void EmitLureWhistle()
+    {
+        Debug.Log("Emit Lure Whistle");
+        SoundManager.Instance.EmitWhistle(
+            transform.position,
+            whistleRadius,
+            WhistleType.Lure
+        );
+    }
+
+    public void EmitAlertWhistle()
+    {
+        Debug.Log("Emit Alert Whistle");
+        SoundManager.Instance.EmitWhistle(
+            transform.position,
+            whistleRadius,
+            WhistleType.Alert
+        );
     }
 }

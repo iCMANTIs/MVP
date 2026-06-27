@@ -24,9 +24,24 @@ public class SoundManager : MonoBehaviour
         foreach (EnemyHearing enemy in enemies)
         {
             if (enemy != null)
-            {
                 enemy.ReceiveSound(position, loudness);
-            }
+        }
+    }
+
+    public void EmitWhistle(Vector3 position, float loudness, WhistleType type)
+    {
+        Debug.Log("Whistle emitted: " + type + " Radius: " + loudness);
+
+        if (enemies == null || enemies.Length == 0)
+        {
+            Debug.LogWarning("SoundManager has no enemies assigned.");
+            return;
+        }
+
+        foreach (EnemyHearing enemy in enemies)
+        {
+            if (enemy != null)
+                enemy.ReceiveWhistle(position, loudness, type);
         }
     }
 }

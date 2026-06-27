@@ -7,7 +7,9 @@ public enum EnemyState
     Investigate,
     Search,
     Chase,
-    Attack
+    Attack,
+    FleeFromSound,
+    AlertInvestigate
 }
 
 public class EnemyAI : MonoBehaviour
@@ -55,6 +57,17 @@ public class EnemyAI : MonoBehaviour
     private Vector3 lastKnownPosition;
     private float searchTimer;
 
+    [Header("Whistle")]
+    public float lureStopDistance = 2.5f;
+    public float fleeDistance = 8f;
+    public float pushAwaySpeed = 1.5f;
+    public float lureSpeed = 1.8f;
+    public float alertSpeed = 4f;
+    public float normalSpeed = 2f;
+    public float alertSearchRadius = 3f;
+    public float alertSearchDuration = 4f;
+
+    private Vector3 fleeTargetPosition;
 
     private void Awake()
     {
@@ -102,6 +115,14 @@ public class EnemyAI : MonoBehaviour
             case EnemyState.Attack:
                 UpdateAttack();
                 break;
+
+            case EnemyState.FleeFromSound:
+                UpdateFleeFromSound();
+                break;
+
+            case EnemyState.AlertInvestigate:
+                UpdateAlertInvestigate();
+                break;
         }
     }
 
@@ -131,9 +152,10 @@ public class EnemyAI : MonoBehaviour
     {
         agent.SetDestination(lastKnownPosition);
 
-        if (!agent.pathPending && agent.remainingDistance < 0.8f)
+        if (!agent.pathPending && agent.remainingDistance < lureStopDistance)
         {
-            EnterSearch(lastKnownPosition);
+            agent.speed = normalSpeed;
+            EnterPatrol();
         }
     }
 
@@ -165,42 +187,29 @@ public class EnemyAI : MonoBehaviour
 
     private void UpdateChase()
     {
-        if (currentTarget != null)
-        {
-            lastKnownPosition = currentTarget.position;
-
-            memoryTimer -= Time.deltaTime;
-
-            agent.SetDestination(lastKnownPosition);
-
-            float targetdistance =Vector3.Distance(transform.position,
-                                 currentTarget.position);
-
-            if (targetdistance <= attackDistance)
-            {
-                EnterAttack();
-            }
-
-            if (memoryTimer <= 0)
-            {
-                currentTarget = null;
-
-                EnterSearch(lastKnownPosition);
-            }
-        }
-        else
+        if (currentTarget == null)
         {
             EnterSearch(lastKnownPosition);
+            return;
         }
 
         lastKnownPosition = currentTarget.position;
-        agent.SetDestination(currentTarget.position);
+        memoryTimer -= Time.deltaTime;
+
+        agent.SetDestination(lastKnownPosition);
 
         float distance = Vector3.Distance(transform.position, currentTarget.position);
 
         if (distance <= attackDistance)
         {
             EnterAttack();
+            return;
+        }
+
+        if (memoryTimer <= 0f)
+        {
+            currentTarget = null;
+            EnterSearch(lastKnownPosition);
         }
     }
 
@@ -279,6 +288,110 @@ public class EnemyAI : MonoBehaviour
         currentState = EnemyState.Attack;
     }
 
+    public void HearWhistle(Vector3 soundPosition, WhistleType whistleType)
+    {
+        if (isStunned)
+            return;
+
+        if (currentState == EnemyState.Chase || currentState == EnemyState.Attack)
+            return;
+
+        waiting = false;
+        currentTarget = null;
+
+        switch (whistleType)
+        {
+            case WhistleType.PushAway:
+                EnterFleeFromSound(soundPosition);
+                break;
+
+            case WhistleType.Lure:
+                EnterLure(soundPosition);
+                break;
+
+            case WhistleType.Alert:
+                EnterAlertInvestigate(soundPosition);
+                break;
+        }
+    }
+
+    void EnterFleeFromSound(Vector3 soundPosition)
+    {
+        currentState = EnemyState.FleeFromSound;
+        agent.speed = pushAwaySpeed;
+
+        Vector3 awayDir = transform.position - soundPosition;
+        awayDir.y = 0f;
+
+        if (awayDir.sqrMagnitude < 0.001f)
+            awayDir = -transform.forward;
+
+        awayDir.Normalize();
+
+        Vector3 target = transform.position + awayDir * fleeDistance;
+
+        if (NavMesh.SamplePosition(target, out NavMeshHit hit, fleeDistance, NavMesh.AllAreas))
+            fleeTargetPosition = hit.position;
+        else
+            fleeTargetPosition = target;
+
+        agent.SetDestination(fleeTargetPosition);
+    }
+
+    void UpdateFleeFromSound()
+    {
+        if (!agent.pathPending && agent.remainingDistance < 0.7f)
+        {
+            agent.speed = normalSpeed;
+            EnterPatrol();
+        }
+    }
+
+    void EnterLure(Vector3 soundPosition)
+    {
+        currentState = EnemyState.Investigate;
+        agent.speed = lureSpeed;
+
+        lastKnownPosition = soundPosition;
+        agent.SetDestination(lastKnownPosition);
+    }
+
+    void EnterAlertInvestigate(Vector3 soundPosition)
+    {
+        currentState = EnemyState.AlertInvestigate;
+        agent.speed = alertSpeed;
+
+        lastKnownPosition = soundPosition;
+        agent.SetDestination(lastKnownPosition);
+    }
+
+    void UpdateAlertInvestigate()
+    {
+        agent.SetDestination(lastKnownPosition);
+
+        if (!agent.pathPending && agent.remainingDistance < 0.8f)
+        {
+            agent.speed = normalSpeed;
+            EnterAlertSearch(lastKnownPosition);
+        }
+    }
+
+    void EnterAlertSearch(Vector3 position)
+    {
+        currentState = EnemyState.Search;
+
+        searchTimer = alertSearchDuration;
+        currentSearchRadius = alertSearchRadius;
+        searchExpandTimer = 999f;
+
+        lastKnownPosition = position;
+        currentTarget = null;
+        waiting = false;
+
+        GoToRandomSearchPoint();
+    }
+
+
     private void GoToRandomPatrolPoint()
     {
         Vector3 center = patrolCenter != null ? patrolCenter.position : transform.position;
@@ -353,5 +466,39 @@ public class EnemyAI : MonoBehaviour
         {
             EnterSearch(lastKnownPosition);
         }
+    }
+
+    public void ReceiveDirectorHint(Vector3 hintPosition)
+    {
+        if (isStunned)
+            return;
+
+        if (currentState == EnemyState.Chase || currentState == EnemyState.Attack)
+            return;
+
+        lastKnownPosition = hintPosition;
+        currentState = EnemyState.Investigate;
+        waiting = false;
+
+        agent.SetDestination(lastKnownPosition);
+
+        Debug.Log("Director gave hint: " + hintPosition);
+    }
+
+    public void BackOff(Vector3 safePosition)
+    {
+        if (isStunned)
+            return;
+
+        if (currentState == EnemyState.Attack)
+            return;
+
+        currentTarget = null;
+        currentState = EnemyState.Patrol;
+        waiting = false;
+
+        agent.SetDestination(safePosition);
+
+        Debug.Log("Director told enemy to back off.");
     }
 }

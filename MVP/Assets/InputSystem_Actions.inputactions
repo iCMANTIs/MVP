@@ -122,6 +122,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "WhistlePushAway",
+                    "type": "Button",
+                    "id": "0c0ef114-275d-4344-89a2-b5752ee2b957",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "WhistleLure",
+                    "type": "Button",
+                    "id": "638e70e1-596b-4d20-9efb-117f3662eb56",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "WhistleAlert",
+                    "type": "Button",
+                    "id": "a17326f0-1293-4c58-9397-9becc2c190fd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -551,6 +578,39 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "HoldHand",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7df820a6-d5ae-411b-bd26-547e6424c8d7",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "WhistlePushAway",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "faa947db-1c3e-42a1-90dc-33092942f97e",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "WhistleLure",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e49a4561-7736-4c24-a49f-d0008b497314",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "WhistleAlert",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
