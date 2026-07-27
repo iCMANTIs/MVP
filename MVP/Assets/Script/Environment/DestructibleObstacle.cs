@@ -10,11 +10,51 @@ public class DestructibleObstacle : MonoBehaviour
     [Header("State")]
     public bool destroyed;
 
+    [Header("Weapon Destruction")]
+    [Tooltip("被武器摧毁时，敌人能听见的范围")]
+    [SerializeField]
+    private float weaponNoiseRadius = 12f;
+
+    [Tooltip("被武器摧毁时播放给玩家听的音效")]
+    [SerializeField]
+    private AudioClip weaponDestroySound;
+
+    [Range(0f, 1f)]
+    [SerializeField]
+    private float weaponDestroyVolume = 1f;
+
+    /// <summary>
+    /// 静默摧毁。
+    /// 适用于Sister拆除，或者不需要发出声音的情况。
+    /// </summary>
     public void DestroyObstacle()
     {
-        if (destroyed) return;
+        DestroyObstacleInternal(false);
+    }
+
+    /// <summary>
+    /// 武器摧毁。
+    /// 会播放音效，并通知附近敌人调查。
+    /// </summary>
+    public void DestroyByWeapon()
+    {
+        DestroyObstacleInternal(true);
+    }
+
+    private void DestroyObstacleInternal(bool emitNoise)
+    {
+        if (destroyed)
+            return;
 
         destroyed = true;
+
+        Vector3 destructionPosition = transform.position;
+
+        if (emitNoise)
+        {
+            PlayWeaponDestroySound(destructionPosition);
+            NotifyNearbyEnemies(destructionPosition);
+        }
 
         if (modelRoot != null)
             modelRoot.SetActive(false);
@@ -25,4 +65,52 @@ public class DestructibleObstacle : MonoBehaviour
         if (blockCollider != null)
             blockCollider.enabled = false;
     }
+
+    private void PlayWeaponDestroySound(Vector3 position)
+    {
+        if (weaponDestroySound == null)
+            return;
+
+        AudioSource.PlayClipAtPoint(
+            weaponDestroySound,
+            position,
+            weaponDestroyVolume
+        );
+    }
+
+    private void NotifyNearbyEnemies(Vector3 soundPosition)
+    {
+        EnemyHearing[] enemyHearings =
+            FindObjectsByType<EnemyHearing>(
+                FindObjectsSortMode.None
+            );
+
+        foreach (EnemyHearing hearing in enemyHearings)
+        {
+            if (hearing == null)
+                continue;
+
+            hearing.ReceiveSound(
+                soundPosition,
+                weaponNoiseRadius
+            );
+        }
+
+        Debug.Log(
+            $"{name} emitted destruction noise. " +
+            $"Radius: {weaponNoiseRadius}"
+        );
+    }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+
+        Gizmos.DrawWireSphere(
+            transform.position,
+            weaponNoiseRadius
+        );
+    }
+#endif
 }

@@ -12,6 +12,9 @@ public class PlayerController_B : MonoBehaviour
     public float deadZone = 0.1f;
     public float runStartThreshold = 0.8f;
 
+    [Header("Interaction")]
+    [SerializeField] private PlayerInteractor playerInteractor;
+
     private Vector2 moveInput;
 
     private bool isArmed;
@@ -31,6 +34,9 @@ public class PlayerController_B : MonoBehaviour
         animator.SetBool("Is Armed", false);
         animator.SetBool("Is Crouching", false);
         animator.SetFloat("Speed", 0f);
+
+        if (playerInteractor == null)
+            playerInteractor = GetComponent<PlayerInteractor>();
     }
 
     void Update()
@@ -176,6 +182,15 @@ public class PlayerController_B : MonoBehaviour
     public void OnLook(InputValue value)
     {
         lookInput = value.Get<Vector2>();
+    }
+
+    public void OnInteract(InputValue value)
+    {
+        if (!value.isPressed)
+            return;
+
+        if (playerInteractor != null)
+            playerInteractor.TryInteract();
     }
 
     void HandleRotation()

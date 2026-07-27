@@ -50,13 +50,16 @@ public class AxeHitbox : MonoBehaviour
 
         // 1. obstacle
         DestructibleObstacle obstacle =
-            other.GetComponentInParent<DestructibleObstacle>();
+    other.GetComponentInParent<DestructibleObstacle>();
 
         if (obstacle != null)
         {
-            obstacle.DestroyObstacle();
+            obstacle.DestroyByWeapon();
 
-            Debug.Log("Destroyed obstacle: " + obstacle.name);
+            Debug.Log(
+                "Destroyed obstacle loudly: " +
+                obstacle.name
+            );
 
             DisableHitbox();
             return;

@@ -39,6 +39,9 @@ public class PlayerController : MonoBehaviour
     [Header("Whistle")]
     public PlayerSoundEmitter soundEmitter;
 
+    [Header("Interaction")]
+    [SerializeField] private PlayerInteractor playerInteractor;
+
     private bool holdHandPressed;
 
     public bool HoldHandPressed => holdHandPressed;
@@ -57,6 +60,8 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsCrouching", false);
             animator.SetFloat("Speed", 0f);
         }
+        if (playerInteractor == null)
+            playerInteractor = GetComponent<PlayerInteractor>();
     }
 
     public void OnHoldHand(InputValue value)
@@ -152,6 +157,12 @@ public class PlayerController : MonoBehaviour
             return;
 
         Debug.Log("Interact Pressed");
+
+        if (playerInteractor != null &&
+        playerInteractor.TryInteract())
+        {
+            return;
+        }
 
         if (IsInAction())
             return;
