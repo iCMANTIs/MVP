@@ -23,19 +23,12 @@ public class DestructibleObstacle : MonoBehaviour
     [SerializeField]
     private float weaponDestroyVolume = 1f;
 
-    /// <summary>
-    /// 静默摧毁。
-    /// 适用于Sister拆除，或者不需要发出声音的情况。
-    /// </summary>
     public void DestroyObstacle()
     {
         DestroyObstacleInternal(false);
     }
 
-    /// <summary>
-    /// 武器摧毁。
-    /// 会播放音效，并通知附近敌人调查。
-    /// </summary>
+
     public void DestroyByWeapon()
     {
         DestroyObstacleInternal(true);
@@ -81,9 +74,7 @@ public class DestructibleObstacle : MonoBehaviour
     private void NotifyNearbyEnemies(Vector3 soundPosition)
     {
         EnemyHearing[] enemyHearings =
-            FindObjectsByType<EnemyHearing>(
-                FindObjectsSortMode.None
-            );
+            FindObjectsByType<EnemyHearing>();
 
         foreach (EnemyHearing hearing in enemyHearings)
         {
