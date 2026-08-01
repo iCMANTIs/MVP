@@ -12,10 +12,58 @@ public class SisterFlashlightController : MonoBehaviour
     public bool isFlashlightInHand;
     public bool isLightOn;
 
+    [Header("Spot Detection")]
+    public float maxSpotDistance = 15f;
+    public LayerMask environmentMask;
+
+    [HideInInspector]
+    public bool hasValidSpot;
+
+    [HideInInspector]
+    public Vector3 currentSpotPosition;
+
+    [HideInInspector]
+    public Vector3 currentSpotNormal;
+
+    [Header("Panic Flicker")]
+    [SerializeField] private PanicSystem panicSystem;
+
+    [Range(0f, 1f)]
+    [SerializeField] private float flickerStartPanic = 0.6f;
+
+    [Range(0f, 1f)]
+    [SerializeField] private float minimumIntensityMultiplier = 0.25f;
+
+    [SerializeField] private float flickerSpeed = 18f;
+
+    [Range(0f, 1f)]
+    [SerializeField] private float flickerStrength = 0.75f;
+
+    private float normalLightIntensity;
+
+
+    public bool showDebugSpot = true;
+
     private void Start()
     {
+        if (panicSystem == null)
+        {
+            panicSystem = FindAnyObjectByType<PanicSystem>();
+        }
+
+        if (flashlightLight != null)
+        {
+            normalLightIntensity = flashlightLight.intensity;
+        }
+
         PutFlashlightInHolster();
         SetLight(false);
+    }
+
+    private void Update()
+    {
+        UpdatePanicFlicker();
+        UpdateSpot();
     }
 
     // Animation Event
@@ -26,6 +74,7 @@ public class SisterFlashlightController : MonoBehaviour
 
         flashlight.SetParent(flashlightHandSocket, false);
         isFlashlightInHand = true;
+        SetLight(true);
     }
 
     // Animation Event
@@ -44,7 +93,20 @@ public class SisterFlashlightController : MonoBehaviour
         isLightOn = on;
 
         if (flashlightLight != null)
+        {
             flashlightLight.enabled = on;
+
+            if (on)
+            {
+                flashlightLight.intensity =
+                    normalLightIntensity;
+            }
+        }
+
+        if (!on)
+        {
+            hasValidSpot = false;
+        }
     }
 
     public void ToggleLight()
@@ -53,5 +115,83 @@ public class SisterFlashlightController : MonoBehaviour
             return;
 
         SetLight(!isLightOn);
+    }
+
+    private void UpdateSpot()
+    {
+        hasValidSpot = false;
+
+        if (!isLightOn)
+            return;
+
+        if (flashlightLight == null)
+            return;
+
+        Transform lightTransform =
+            flashlightLight.transform;
+
+        if (Physics.Raycast(
+            lightTransform.position,
+            lightTransform.forward,
+            out RaycastHit hit,
+            maxSpotDistance,
+            environmentMask,
+            QueryTriggerInteraction.Ignore))
+        {
+            hasValidSpot = true;
+
+            currentSpotPosition = hit.point;
+            currentSpotNormal = hit.normal;
+
+            if (showDebugSpot)
+            {
+                Debug.DrawLine(
+                    lightTransform.position,
+                    hit.point,
+                    Color.yellow
+                );
+
+                Debug.DrawRay(
+                    hit.point,
+                    hit.normal * 0.25f,
+                    Color.cyan
+                );
+            }
+        }
+    }
+
+    private void UpdatePanicFlicker()
+    {
+        if (flashlightLight == null)
+            return;
+
+        if (!isLightOn)
+            return;
+
+        if (panicSystem == null)
+        {
+            flashlightLight.intensity = normalLightIntensity;
+            return;
+        }
+
+        float panic = panicSystem.NormalizedPanic;
+
+        if (panic <= flickerStartPanic)
+        {
+            flashlightLight.intensity = normalLightIntensity;
+            return;
+        }
+
+        float panicEffect = Mathf.InverseLerp(flickerStartPanic,1f,panic);
+
+        float noise = Mathf.PerlinNoise(Time.time * flickerSpeed,0f);
+
+        float effectiveStrength =flickerStrength * panicEffect;
+
+        float brightnessMultiplier = Mathf.Lerp(1f,noise,effectiveStrength);
+
+        brightnessMultiplier = Mathf.Max(brightnessMultiplier,minimumIntensityMultiplier);
+
+        flashlightLight.intensity =normalLightIntensity * brightnessMultiplier;
     }
 }

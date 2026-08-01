@@ -17,6 +17,19 @@ public class EnemyVision : MonoBehaviour
     [Header("Debug")]
     public bool showDebugRays = true;
 
+
+    [Header("Sister Flashlight")]
+    public SisterFlashlightController sisterFlashlight;
+
+    public float flashlightViewDistance = 14f;
+    public float flashlightViewAngle = 100f;
+
+    [Tooltip("flash check")]
+    public float flashlightCheckInterval = 0.25f;
+    private float flashlightCheckTimer;
+    public float flashlightReactionCooldown = 3f;
+    private float flashlightReactionTimer;
+
     private Transform seenTarget;
     private float loseSightTimer;
 
@@ -51,6 +64,20 @@ public class EnemyVision : MonoBehaviour
                 }
             }
         }
+
+        flashlightCheckTimer -= Time.deltaTime;
+
+        if (flashlightCheckTimer <= 0f)
+        {
+            flashlightCheckTimer = flashlightCheckInterval;
+            CheckSisterFlashlight();
+        }
+
+        if (flashlightReactionTimer > 0f)
+        {
+            flashlightReactionTimer -= Time.deltaTime;
+        }
+
     }
 
     private Transform GetVisibleTarget()
@@ -105,6 +132,86 @@ public class EnemyVision : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void CheckSisterFlashlight()
+    {
+        if (flashlightReactionTimer > 0f)
+            return;
+
+        if (enemyAI == null)
+            return;
+
+        if (sisterFlashlight == null)
+            return;
+
+        if (!sisterFlashlight.isLightOn)
+            return;
+
+        if (!sisterFlashlight.hasValidSpot)
+            return;
+
+        if (enemyAI.currentState == EnemyState.Chase ||
+            enemyAI.currentState == EnemyState.Attack)
+        {
+            return;
+        }
+
+        Vector3 eyePosition =
+            transform.position + Vector3.up * eyeHeight;
+
+        Vector3 lightPosition =
+            sisterFlashlight.currentSpotPosition;
+
+        Vector3 directionToLight =
+            lightPosition - eyePosition;
+
+        float distanceToLight =
+            directionToLight.magnitude;
+
+        // dis
+        if (distanceToLight > flashlightViewDistance)
+            return;
+
+        // face
+        float angle = Vector3.Angle(
+            transform.forward,
+            directionToLight.normalized
+        );
+
+        if (angle > flashlightViewAngle * 0.5f)
+            return;
+
+        // wall
+        if (Physics.Raycast(
+            eyePosition,
+            directionToLight.normalized,
+            out RaycastHit hit,
+            distanceToLight))
+        {
+            float distance =
+        Vector3.Distance(
+            hit.point,
+            lightPosition
+        );
+
+
+            if (distance > 0.25f)
+                return;
+        }
+
+        enemyAI.InvestigateVisualClue(lightPosition);
+        flashlightReactionTimer = flashlightReactionCooldown;
+
+        if (showDebugRays)
+        {
+            Debug.DrawLine(
+                eyePosition,
+                lightPosition,
+                Color.yellow,
+                flashlightCheckInterval
+            );
+        }
     }
 
     private void DrawVisionCone()

@@ -215,9 +215,53 @@ public class EnemyAI : MonoBehaviour
 
     private void UpdateAttack()
     {
-        agent.ResetPath();
+        //agent.ResetPath();
         Debug.Log("Enemy attacks!");
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+        }
 
+        if (currentTarget == null)
+        {
+            EnterSearch(lastKnownPosition);
+            return;
+        }
+
+        float distanceToTarget = Vector3.Distance(
+            transform.position,
+            currentTarget.position
+        );
+
+        // distance judgment
+        if (distanceToTarget > attackDistance)
+        {
+            currentState = EnemyState.Chase;
+            return;
+        }
+
+        PlayerHealth playerHealth =
+            currentTarget.GetComponentInParent<PlayerHealth>();
+
+        if (playerHealth != null)
+        {
+            playerHealth.TakeDamage(1);
+
+            Debug.Log(
+                $"{name} attacked {currentTarget.name}. " +
+                $"Remaining health: {playerHealth.CurrentHealth}"
+            );
+        }
+        else
+        {
+            Debug.LogWarning(
+                $"No PlayerHealth found on {currentTarget.name}.",
+                this
+            );
+        }
+
+        // attack finish
+        currentTarget = null;
         EnterSearch(lastKnownPosition);
     }
 
@@ -483,6 +527,35 @@ public class EnemyAI : MonoBehaviour
         agent.SetDestination(lastKnownPosition);
 
         Debug.Log("Director gave hint: " + hintPosition);
+    }
+
+    public void InvestigateVisualClue(Vector3 cluePosition)
+    {
+        if (isStunned)
+            return;
+
+
+        if (currentState == EnemyState.Chase ||
+            currentState == EnemyState.Attack)
+        {
+            return;
+        }
+
+        currentTarget = null;
+        lastKnownPosition = cluePosition;
+        currentState = EnemyState.Investigate;
+        waiting = false;
+
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+            agent.SetDestination(lastKnownPosition);
+        }
+
+        Debug.Log(
+            "Enemy saw Sister's flashlight and is investigating: "
+            + cluePosition
+        );
     }
 
     public void BackOff(Vector3 safePosition)

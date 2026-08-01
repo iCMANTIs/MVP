@@ -24,11 +24,6 @@ public class PlayerController : MonoBehaviour
     private VaultPoint currentVaultPoint;
     private bool isVaulting;
 
-    private Vector2 moveInput;
-    private bool isCrouching;
-    private bool HasTorch;
-    private bool torchBusy;
-
     [Header("Flash Stun")]
     public Transform flashOrigin;
     public float stunRange = 8f;
@@ -51,6 +46,13 @@ public class PlayerController : MonoBehaviour
 
     public Transform cameraTarget;
 
+    private Vector2 moveInput;
+    private bool isCrouching;
+    private bool HasTorch;
+    //private bool torchBusy;
+    public bool canControl = true;
+
+
     void Awake()
     {
         isCrouching = false;
@@ -66,6 +68,9 @@ public class PlayerController : MonoBehaviour
 
     public void OnHoldHand(InputValue value)
     {
+        if (!canControl)
+            return;
+
         float triggerValue = value.Get<float>();
         holdHandPressed = triggerValue > 0.5f;
         Debug.Log("Player A Hold Hand Pressed: " + holdHandPressed);
@@ -92,11 +97,20 @@ public class PlayerController : MonoBehaviour
     public void OnMove(InputValue value)
     {
         Debug.Log("Sister(PlayerA) Move = " + moveInput);
+        if (!canControl)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
         moveInput = value.Get<Vector2>();
     }
 
     public void OnCrouch(InputValue value)
     {
+        if (!canControl)
+            return;
+
         if (value.isPressed)
         {
             if (!value.isPressed)
@@ -117,6 +131,9 @@ public class PlayerController : MonoBehaviour
 
     public void OnTorch(InputValue value)
     {
+        if (!canControl)
+            return;
+
         if (!value.isPressed)
             return;
 
@@ -138,6 +155,9 @@ public class PlayerController : MonoBehaviour
     }
     public void OnAttack(InputValue value)
     {
+        if (!canControl)
+            return;
+
         if (!value.isPressed)
             return;
 
@@ -153,6 +173,9 @@ public class PlayerController : MonoBehaviour
 
     public void OnInteract(InputValue value)
     {
+        if (!canControl)
+            return;
+
         if (!value.isPressed)
             return;
 
@@ -324,6 +347,9 @@ public class PlayerController : MonoBehaviour
 
     public void OnWhistlePushAway(InputValue value)
     {
+        if (!canControl)
+            return;
+
         if (!value.isPressed)
             return;
         Debug.Log("PushAway Whistle");
@@ -337,6 +363,8 @@ public class PlayerController : MonoBehaviour
 
     public void OnWhistleLure(InputValue value)
     {
+        if (!canControl)
+            return;
         if (!value.isPressed)
             return;
         Debug.Log("Lure Whistle");
@@ -346,6 +374,8 @@ public class PlayerController : MonoBehaviour
 
     public void OnWhistleAlert(InputValue value)
     {
+        if (!canControl)
+            return;
         if (!value.isPressed)
             return;
         Debug.Log("Alert Whistle");
@@ -356,7 +386,11 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         //Debug.Log("Sister(PlayerA) Holding = " + isHoldingHands);
-
+        if (!canControl)
+        {
+            animator.SetFloat("Speed", 0);
+            return;
+        }
         if (isHoldingHands)
             return;
 

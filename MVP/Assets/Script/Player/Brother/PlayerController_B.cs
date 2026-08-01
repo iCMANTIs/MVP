@@ -26,6 +26,8 @@ public class PlayerController_B : MonoBehaviour
     public bool IsCrouching => isCrouching;
 
     public Transform cameraTarget;
+
+    public bool canControl = true;
     void Awake()
     {
         isArmed = false;
@@ -41,6 +43,11 @@ public class PlayerController_B : MonoBehaviour
 
     void Update()
     {
+        if (!canControl)
+        {
+            animator.SetFloat("Speed", 0);
+            return;
+        }
         if (isHoldingHands)
             return;
         HandleRotation();
@@ -52,6 +59,8 @@ public class PlayerController_B : MonoBehaviour
 
     public void OnHoldHand(InputValue value)
     {
+        if (!canControl)
+            return;
         float triggerValue = value.Get<float>();
         holdHandPressed = triggerValue > 0.5f;
         Debug.Log("Player B Hold Hand Pressed: " + holdHandPressed);
@@ -74,11 +83,15 @@ public class PlayerController_B : MonoBehaviour
 
     public void OnMove(InputValue value)
     {
+        if (!canControl)
+            return;
         moveInput = value.Get<Vector2>();
     }
 
     public void OnArm(InputValue value)
     {
+        if (!canControl)
+            return;
         if (!value.isPressed)
             return;
 
@@ -104,6 +117,8 @@ public class PlayerController_B : MonoBehaviour
 
     public void OnCrouch(InputValue value)
     {
+        if (!canControl)
+            return;
         if (!value.isPressed)
             return;
 
@@ -131,6 +146,8 @@ public class PlayerController_B : MonoBehaviour
 
     public void OnAttack(InputValue value)
     {
+        if (!canControl)
+            return;
         if (!value.isPressed)
             return;
 
@@ -148,6 +165,8 @@ public class PlayerController_B : MonoBehaviour
 
     public void OnEcholocation(InputValue value)
     {
+        if (!canControl)
+            return;
         if (!value.isPressed)
             return;
 
@@ -186,6 +205,8 @@ public class PlayerController_B : MonoBehaviour
 
     public void OnInteract(InputValue value)
     {
+        if (!canControl)
+            return;
         if (!value.isPressed)
             return;
 
