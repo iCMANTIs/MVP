@@ -557,7 +557,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -872,7 +872,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -952,6 +952,11 @@ MonoBehaviour:
   eyeHeight: 1.5
   loseSightTime: 2
   showDebugRays: 1
+  sisterFlashlight: {fileID: 0}
+  flashlightViewDistance: 14
+  flashlightViewAngle: 100
+  flashlightCheckInterval: 0.25
+  flashlightReactionCooldown: 3
 --- !u!4 &229450666 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -6857788192064577062, guid: 8f70112014e9a0943baaee485e1e5fca, type: 3}
@@ -1022,7 +1027,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1361,7 +1366,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1517,9 +1522,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PanicSystem
   handHoldSystem: {fileID: 1158862796}
+  playerA: {fileID: 0}
+  playerB: {fileID: 0}
   panicBar: {fileID: 551260454}
   currentPanic: 0
   maxPanic: 100
+  safeDistance: 5
   increaseSpeed: 3
   decreaseSpeed: 8
 --- !u!114 &551260454
@@ -1726,7 +1734,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2305,7 +2313,9 @@ MonoBehaviour:
   rotationSpeed: 10
   deadZone: 0.1
   runStartThreshold: 0.8
+  playerInteractor: {fileID: 0}
   cameraTarget: {fileID: 1220965784}
+  canControl: 1
 --- !u!95 &938089937
 Animator:
   serializedVersion: 7
@@ -2730,7 +2740,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3258,7 +3268,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   soundEmitter: {fileID: 0}
+  playerInteractor: {fileID: 0}
   cameraTarget: {fileID: 1098164316}
+  canControl: 1
 --- !u!95 &1158999491
 Animator:
   serializedVersion: 7
@@ -3358,6 +3370,19 @@ MonoBehaviour:
   flashlightLight: {fileID: 2002330624}
   isFlashlightInHand: 0
   isLightOn: 0
+  maxSpotDistance: 15
+  environmentMask:
+    serializedVersion: 2
+    m_Bits: 0
+  hasValidSpot: 0
+  currentSpotPosition: {x: 0, y: 0, z: 0}
+  currentSpotNormal: {x: 0, y: 0, z: 0}
+  panicSystem: {fileID: 0}
+  flickerStartPanic: 0.6
+  minimumIntensityMultiplier: 0.25
+  flickerSpeed: 18
+  flickerStrength: 0.75
+  showDebugSpot: 1
 --- !u!4 &1162370837 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -2770666803903516498, guid: 8f70112014e9a0943baaee485e1e5fca, type: 3}
@@ -3518,7 +3543,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3699,7 +3724,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4569,7 +4594,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5151,6 +5176,9 @@ MonoBehaviour:
   hitCollider: {fileID: 1549172661}
   blockCollider: {fileID: 319563453}
   destroyed: 0
+  weaponNoiseRadius: 12
+  weaponDestroySound: {fileID: 0}
+  weaponDestroyVolume: 1
 --- !u!4 &1874800834
 Transform:
   m_ObjectHideFlags: 0
@@ -5581,7 +5609,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
