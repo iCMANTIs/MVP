@@ -9,6 +9,22 @@ public class CoopInput : MonoBehaviour
     void Start()
     {
         var gamepads = Gamepad.all;
+        Debug.Log("Gamepad count: " + gamepads.Count);
+
+        for (int i = 0; i < gamepads.Count; i++)
+        {
+            Gamepad pad = Gamepad.all[i];
+
+            if (pad.buttonSouth.wasPressedThisFrame)
+            {
+                Debug.Log(
+                    $"Button pressed on Gamepad [{i}], " +
+                    $"Device ID: {pad.deviceId}, " +
+                    $"Name: {pad.name}"
+                );
+            }
+        }
+
 
         if (gamepads.Count >= 1)
         {
