@@ -205,6 +205,20 @@ public class PlayerController_B : MonoBehaviour
 
     public void OnInteract(InputValue value)
     {
+        PlayerHealth health = GetComponent<PlayerHealth>();
+
+        if (health != null &&
+            health.CanReviveTeammate())
+        {
+            health.SetReviveInput(value.isPressed);
+            return;
+        }
+
+        if (health != null)
+        {
+            health.SetReviveInput(false);
+        }
+
         if (!canControl)
             return;
         if (!value.isPressed)

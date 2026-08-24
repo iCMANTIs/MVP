@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -19,6 +20,20 @@ public class PlayerHealth : MonoBehaviour
     [Header("Animation")]
     [SerializeField]
     private Animator animator;
+
+    [Header("Revive")]
+    [SerializeField] private PlayerHealth teammateHealth;
+
+    [SerializeField] private float reviveDistance = 2f;
+    [SerializeField] private float reviveDuration = 3f;
+    [SerializeField] private int reviveHealth = 1;
+
+    [Header("Revive UI")]
+    [SerializeField] private GameObject reviveCanvas;
+    [SerializeField] private Slider reviveSlider;
+
+    private bool reviveInputHeld;
+    private float reviveProgress;
 
     [Tooltip("EMPTY/HURT anim trigger")]
     [SerializeField]
@@ -61,7 +76,9 @@ public class PlayerHealth : MonoBehaviour
         {
             invulnerabilityTimer -= Time.deltaTime;
         }
+        UpdateRevive();
     }
+
 
     public void TakeDamage(int damageAmount)
     {
@@ -140,7 +157,170 @@ public class PlayerHealth : MonoBehaviour
 
         HealthChanged?.Invoke(this);
 
+    }
+
+    public void Revive(int reviveHealth = 1)
+    {
+        if (!isDowned)
+            return;
+
+        currentHealth = Mathf.Clamp(
+            reviveHealth,
+            1,
+            maxHealth
+        );
+
+        isDowned = false;
+
+
+        invulnerabilityTimer = invulnerabilityDuration;
+
+        PlayerController sister =
+            GetComponent<PlayerController>();
+
+        if (sister != null)
+        {
+            sister.canControl = true;
+        }
+
+        PlayerController_B brother =
+            GetComponent<PlayerController_B>();
+
+        if (brother != null)
+        {
+            brother.canControl = true;
+        }
+
+        if (animator != null &&
+            !string.IsNullOrEmpty(downedBoolName))
+        {
+            animator.SetBool(
+                downedBoolName,
+                false
+            );
+
+            animator.SetFloat(
+                "Speed",
+                0f
+            );
+        }
+
+        Debug.Log(
+            gameObject.name +
+            " revived with " +
+            currentHealth +
+            " HP."
+        );
+
         HealthChanged?.Invoke(this);
+    }
+
+
+    public void SetReviveInput(bool held)
+    {
+        reviveInputHeld = held;
+    }
+
+    private void UpdateRevive()
+    {
+        if (teammateHealth == null)
+        {
+            ResetReviveProgress();
+            return;
+        }
+
+        if (isDowned)
+        {
+            ResetReviveProgress();
+            return;
+        }
+
+        if (!teammateHealth.IsDowned)
+        {
+            ResetReviveProgress();
+            return;
+        }
+
+        float distance = Vector3.Distance(
+            transform.position,
+            teammateHealth.transform.position
+        );
+
+        if (distance > reviveDistance)
+        {
+            ResetReviveProgress();
+            return;
+        }
+
+        if (teammateHealth.reviveCanvas != null)
+        {
+            teammateHealth.reviveCanvas.SetActive(true);
+        }
+
+        if (!reviveInputHeld)
+        {
+            reviveProgress = 0f;
+            UpdateReviveSlider();
+            return;
+        }
+
+        reviveProgress += Time.deltaTime;
+
+        UpdateReviveSlider();
+
+        if (reviveProgress >= reviveDuration)
+        {
+            teammateHealth.Revive(reviveHealth);
+
+            ResetReviveProgress();
+        }
+    }
+
+    private void UpdateReviveSlider()
+    {
+        if (teammateHealth == null)
+            return;
+
+        if (teammateHealth.reviveSlider == null)
+            return;
+
+        teammateHealth.reviveSlider.value = Mathf.Clamp01(reviveProgress / reviveDuration);
+    }
+
+    private void ResetReviveProgress()
+    {
+        reviveProgress = 0f;
+
+        if (teammateHealth == null)
+            return;
+
+        if (teammateHealth.reviveSlider != null)
+        {
+            teammateHealth.reviveSlider.value = 0f;
+        }
+
+        if (teammateHealth.reviveCanvas != null)
+        {
+            teammateHealth.reviveCanvas.SetActive(false);
+        }
+    }
+    public bool CanReviveTeammate()
+    {
+        if (isDowned)
+            return false;
+
+        if (teammateHealth == null)
+            return false;
+
+        if (!teammateHealth.IsDowned)
+            return false;
+
+        float distance = Vector3.Distance(
+            transform.position,
+            teammateHealth.transform.position
+        );
+
+        return distance <= reviveDistance;
     }
 
     private void PlayHurtAnimation()
@@ -162,21 +342,43 @@ public class PlayerHealth : MonoBehaviour
         isDowned = true;
         currentHealth = 0;
 
-        Debug.Log(gameObject.name + " is downed.");
+        Debug.Log(
+            gameObject.name + " is downed."
+        );
 
         // ban movement
-        PlayerController sister = GetComponent<PlayerController>();
+        PlayerController sister =
+            GetComponent<PlayerController>();
+
         if (sister != null)
+        {
             sister.canControl = false;
+        }
 
-        PlayerController_B brother = GetComponent<PlayerController_B>();
+        PlayerController_B brother =
+            GetComponent<PlayerController_B>();
+
         if (brother != null)
+        {
             brother.canControl = false;
+        }
 
-        // stop movement animation  
+        // Animator
         if (animator != null)
         {
-            animator.SetFloat("Speed", 0f);
+            animator.SetFloat(
+                "Speed",
+                0f
+            );
+
+            if (!string.IsNullOrEmpty(
+                downedBoolName))
+            {
+                animator.SetBool(
+                    downedBoolName,
+                    true
+                );
+            }
         }
 
         PlayerDowned?.Invoke(this);
