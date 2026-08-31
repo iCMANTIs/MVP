@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Door : MonoBehaviour, IInteractable
@@ -16,8 +17,17 @@ public class Door : MonoBehaviour, IInteractable
     [SerializeField]
     private bool isOpen;
 
+    [Header("Interaction Prompt")]
+    [SerializeField]
+    private GameObject promptCanvas;
+
     private Quaternion closedRotation;
     private Quaternion openRotation;
+
+
+    private readonly HashSet<GameObject> nearbyPlayers =
+        new HashSet<GameObject>();
+
 
     private void Awake()
     {
@@ -36,6 +46,11 @@ public class Door : MonoBehaviour, IInteractable
         openRotation =
             closedRotation *
             Quaternion.Euler(0f, openAngle, 0f);
+
+        if (promptCanvas != null)
+        {
+            promptCanvas.SetActive(false);
+        }
     }
 
     private void Update()
@@ -67,6 +82,8 @@ public class Door : MonoBehaviour, IInteractable
             $"{name} door state: " +
             (isOpen ? "Open" : "Closed")
         );
+
+        UpdatePrompt();
     }
 
 
@@ -80,6 +97,63 @@ public class Door : MonoBehaviour, IInteractable
         Debug.Log(
             $"{name} opened for Enemy AI."
         );
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        GameObject player = GetPlayer(other);
+
+        if (player == null)
+            return;
+
+        nearbyPlayers.Add(player);
+
+        UpdatePrompt();
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        GameObject player = GetPlayer(other);
+
+        if (player == null)
+            return;
+
+        nearbyPlayers.Remove(player);
+
+        UpdatePrompt();
+    }
+
+    private GameObject GetPlayer(Collider other)
+    {
+        PlayerController sister =
+            other.GetComponentInParent<PlayerController>();
+
+        if (sister != null)
+        {
+            return sister.gameObject;
+        }
+
+        PlayerController_B brother =
+            other.GetComponentInParent<PlayerController_B>();
+
+        if (brother != null)
+        {
+            return brother.gameObject;
+        }
+
+        return null;
+    }
+
+    private void UpdatePrompt()
+    {
+        if (promptCanvas == null)
+            return;
+
+        bool shouldShow =
+            !isOpen &&
+            nearbyPlayers.Count > 0;
+
+        promptCanvas.SetActive(shouldShow);
     }
 
 

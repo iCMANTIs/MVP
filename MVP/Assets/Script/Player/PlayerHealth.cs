@@ -304,6 +304,7 @@ public class PlayerHealth : MonoBehaviour
             teammateHealth.reviveCanvas.SetActive(false);
         }
     }
+
     public bool CanReviveTeammate()
     {
         if (isDowned)

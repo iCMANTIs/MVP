@@ -44,6 +44,8 @@ public class SisterFlashlightController : MonoBehaviour
 
     public bool showDebugSpot = true;
 
+    private FlashlightReveal currentReveal;
+
     private void Start()
     {
         if (panicSystem == null)
@@ -122,10 +124,16 @@ public class SisterFlashlightController : MonoBehaviour
         hasValidSpot = false;
 
         if (!isLightOn)
+        {
+            ClearReveal();
             return;
+        }
 
         if (flashlightLight == null)
+        {
+            ClearReveal();
             return;
+        }
 
         Transform lightTransform =
             flashlightLight.transform;
@@ -143,6 +151,19 @@ public class SisterFlashlightController : MonoBehaviour
             currentSpotPosition = hit.point;
             currentSpotNormal = hit.normal;
 
+            FlashlightReveal reveal =
+                hit.collider.GetComponentInParent<FlashlightReveal>();
+
+            if (reveal != currentReveal)
+            {
+                ClearReveal();
+
+                currentReveal = reveal;
+
+                if (currentReveal != null)
+                    currentReveal.Reveal();
+            }
+
             if (showDebugSpot)
             {
                 Debug.DrawLine(
@@ -157,6 +178,19 @@ public class SisterFlashlightController : MonoBehaviour
                     Color.cyan
                 );
             }
+
+            return;
+        }
+
+        ClearReveal();
+    }
+
+    private void ClearReveal()
+    {
+        if (currentReveal != null)
+        {
+            currentReveal.Hide();
+            currentReveal = null;
         }
     }
 

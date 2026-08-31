@@ -37,6 +37,15 @@ public class PlayerController : MonoBehaviour
     [Header("Interaction")]
     [SerializeField] private PlayerInteractor playerInteractor;
 
+    [Header("Crouch Collider")]
+    [SerializeField] private CharacterController playerCollider;
+
+    [SerializeField] private float standingColliderHeight = 0.8f;
+    [SerializeField] private float crouchingColliderHeight = 0.7f;
+
+    private Vector3 standingColliderCenter;
+    private Vector3 crouchingColliderCenter;
+
     private bool holdHandPressed;
 
     public bool HoldHandPressed => holdHandPressed;
@@ -64,6 +73,22 @@ public class PlayerController : MonoBehaviour
         }
         if (playerInteractor == null)
             playerInteractor = GetComponent<PlayerInteractor>();
+
+        if (playerCollider == null)
+        {
+            playerCollider = GetComponent<CharacterController>();
+        }
+
+        if (playerCollider != null)
+        {
+            standingColliderHeight = playerCollider.height;
+            standingColliderCenter = playerCollider.center;
+
+            crouchingColliderCenter = standingColliderCenter;
+            crouchingColliderCenter.y =
+                standingColliderCenter.y -
+                (standingColliderHeight - crouchingColliderHeight) * 0.5f;
+        }
     }
 
     public void OnHoldHand(InputValue value)
@@ -105,6 +130,25 @@ public class PlayerController : MonoBehaviour
 
         moveInput = value.Get<Vector2>();
     }
+    private void SetCrouchCollider()
+    {
+        if (playerCollider == null)
+            return;
+
+        playerCollider.height = crouchingColliderHeight;
+        playerCollider.center = crouchingColliderCenter;
+    }
+
+    private void SetStandingCollider()
+    {
+        if (playerCollider == null)
+            return;
+
+        playerCollider.height = standingColliderHeight;
+        playerCollider.center = standingColliderCenter;
+    }
+
+
 
     public void OnCrouch(InputValue value)
     {
@@ -121,6 +165,15 @@ public class PlayerController : MonoBehaviour
 
             isCrouching = !isCrouching;
             Debug.Log("Crouch Toggle: " + isCrouching);
+        }
+
+        if (isCrouching)
+        {
+            SetCrouchCollider();
+        }
+        else
+        {
+            SetStandingCollider();
         }
     }
     bool IsInAction()

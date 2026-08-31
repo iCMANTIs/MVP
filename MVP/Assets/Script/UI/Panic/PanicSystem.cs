@@ -21,6 +21,21 @@ public class PanicSystem : MonoBehaviour
     public float increaseSpeed = 8f;
     public float decreaseSpeed = 15f;
 
+    [Header("Tutorial")]
+    [SerializeField]
+    private bool panicEnabled = true;
+
+    public bool PanicEnabled => panicEnabled;
+
+    public void SetPanicEnabled(bool enabled)
+    {
+        panicEnabled = enabled;
+
+        if (!panicEnabled)
+        {
+            ResetPanic();
+        }
+    }
     public bool IsMaxPanic => currentPanic >= maxPanic;
 
     public float NormalizedPanic
@@ -58,6 +73,11 @@ public class PanicSystem : MonoBehaviour
 
     void Update()
     {
+        if (!panicEnabled)
+        {
+            return;
+        }
+
         if (handHoldSystem == null)
             return;
 

@@ -1,26 +1,42 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class PanicDark : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private PanicSystem panicSystem;
-    [SerializeField] private Image darknessOverlay;
+    [SerializeField]
+    private PanicSystem panicSystem;
+
+    [SerializeField]
+    private Volume panicVolume;
 
     [Header("Darkness Settings")]
     [Range(0f, 1f)]
-    [SerializeField] private float darknessStartPanic = 0.4f;
+    [SerializeField]
+    private float darknessStartPanic = 0.4f;
 
-    [Range(0f, 1f)]
-    [SerializeField] private float maximumDarknessAlpha = 0.75f;
+    [SerializeField]
+    private float maximumDarknessExposure = -2.5f;
 
-    [SerializeField] private float smoothSpeed = 4f;
+    [SerializeField]
+    private float smoothSpeed = 4f;
 
-    private float currentAlpha;
+    private ColorAdjustments colorAdjustments;
+
+    private float currentExposure = 0f;
 
     private void Awake()
     {
-        SetOverlayAlpha(0f);
+        if (panicVolume != null &&
+            panicVolume.profile != null)
+        {
+            panicVolume.profile.TryGet(
+                out colorAdjustments
+            );
+        }
+
+        SetExposure(0f);
     }
 
     private void Update()
@@ -30,59 +46,67 @@ public class PanicDark : MonoBehaviour
 
     private void UpdateDarkness()
     {
-        if (darknessOverlay == null)
+        if (colorAdjustments == null)
             return;
 
         if (panicSystem == null)
         {
-            currentAlpha = Mathf.MoveTowards(
-                currentAlpha,
+            currentExposure = Mathf.Lerp(
+                currentExposure,
                 0f,
                 smoothSpeed * Time.deltaTime
             );
 
-            SetOverlayAlpha(currentAlpha);
+            SetExposure(currentExposure);
             return;
         }
 
         float panic = panicSystem.NormalizedPanic;
-        float targetAlpha = 0f;
+
+        float targetExposure = 0f;
 
         if (panic > darknessStartPanic)
         {
-            float panicEffect = Mathf.InverseLerp(darknessStartPanic,1f,panic);
+            float panicEffect = Mathf.InverseLerp(
+                darknessStartPanic,
+                1f,
+                panic
+            );
 
-            panicEffect = Mathf.SmoothStep(0f,1f,panicEffect);
+            panicEffect = Mathf.SmoothStep(
+                0f,
+                1f,
+                panicEffect
+            );
 
-            targetAlpha =panicEffect * maximumDarknessAlpha;
+            targetExposure = Mathf.Lerp(
+                0f,
+                maximumDarknessExposure,
+                panicEffect
+            );
         }
 
-        currentAlpha = Mathf.Lerp(
-            currentAlpha,
-            targetAlpha,
+        currentExposure = Mathf.Lerp(
+            currentExposure,
+            targetExposure,
             smoothSpeed * Time.deltaTime
         );
 
-        SetOverlayAlpha(currentAlpha);
+        SetExposure(currentExposure);
     }
 
-    private void SetOverlayAlpha(float alpha)
+    private void SetExposure(float exposure)
     {
-        if (darknessOverlay == null)
+        if (colorAdjustments == null)
             return;
 
-        Color color = darknessOverlay.color;
-        color.r = 0f;
-        color.g = 0f;
-        color.b = 0f;
-        color.a = Mathf.Clamp01(alpha);
-
-        darknessOverlay.color = color;
+        colorAdjustments.postExposure.value =
+            exposure;
     }
 
     private void OnDisable()
     {
-        currentAlpha = 0f;
-        SetOverlayAlpha(0f);
+        currentExposure = 0f;
+        SetExposure(0f);
     }
 }

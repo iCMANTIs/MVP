@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class DestructibleObstacle : MonoBehaviour
 {
@@ -9,6 +10,10 @@ public class DestructibleObstacle : MonoBehaviour
 
     [Header("State")]
     public bool destroyed;
+
+    [Header("Events")]
+    public UnityEvent onDestroyed;
+
 
     [Header("Weapon Destruction")]
     [Tooltip("被武器摧毁时，敌人能听见的范围")]
@@ -22,6 +27,8 @@ public class DestructibleObstacle : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField]
     private float weaponDestroyVolume = 1f;
+
+
 
     public void DestroyObstacle()
     {
@@ -57,6 +64,12 @@ public class DestructibleObstacle : MonoBehaviour
 
         if (blockCollider != null)
             blockCollider.enabled = false;
+
+        if (blockCollider != null)
+            blockCollider.enabled = false;
+
+        onDestroyed?.Invoke();
+
     }
 
     private void PlayWeaponDestroySound(Vector3 position)

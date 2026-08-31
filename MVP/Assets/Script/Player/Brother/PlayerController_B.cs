@@ -15,6 +15,15 @@ public class PlayerController_B : MonoBehaviour
     [Header("Interaction")]
     [SerializeField] private PlayerInteractor playerInteractor;
 
+    [Header("Crouch Collider")]
+    [SerializeField] private CharacterController playerCollider;
+
+    [SerializeField] private float standingColliderHeight = 1.0f;
+    [SerializeField] private float crouchingColliderHeight = 0.8f;
+
+    private Vector3 standingColliderCenter;
+    private Vector3 crouchingColliderCenter;
+
     private Vector2 moveInput;
 
     private bool isArmed;
@@ -39,6 +48,22 @@ public class PlayerController_B : MonoBehaviour
 
         if (playerInteractor == null)
             playerInteractor = GetComponent<PlayerInteractor>();
+
+        if (playerCollider == null)
+        {
+            playerCollider = GetComponent<CharacterController>();
+        }
+
+        if (playerCollider != null)
+        {
+            standingColliderHeight = playerCollider.height;
+            standingColliderCenter = playerCollider.center;
+
+            crouchingColliderCenter = standingColliderCenter;
+            crouchingColliderCenter.y =
+                standingColliderCenter.y -
+                (standingColliderHeight - crouchingColliderHeight) * 0.5f;
+        }
     }
 
     void Update()
@@ -114,6 +139,24 @@ public class PlayerController_B : MonoBehaviour
             animator.SetTrigger("Disarm");
         }
     }
+    private void SetCrouchCollider()
+    {
+        if (playerCollider == null)
+            return;
+
+        playerCollider.height = crouchingColliderHeight;
+        playerCollider.center = crouchingColliderCenter;
+    }
+
+    private void SetStandingCollider()
+    {
+        if (playerCollider == null)
+            return;
+
+        playerCollider.height = standingColliderHeight;
+        playerCollider.center = standingColliderCenter;
+    }
+
 
     public void OnCrouch(InputValue value)
     {
@@ -125,10 +168,12 @@ public class PlayerController_B : MonoBehaviour
         if (IsInAction())
             return;
 
+
         if (!isCrouching)
         {
             isCrouching = true;
             animator.SetBool("Is Crouching", true);
+            SetCrouchCollider();
 
             if (isArmed)
             {
@@ -141,6 +186,7 @@ public class PlayerController_B : MonoBehaviour
         {
             isCrouching = false;
             animator.SetBool("Is Crouching", false);
+            SetStandingCollider();
         }
     }
 

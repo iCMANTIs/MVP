@@ -40,6 +40,10 @@ public class HandHoldSystem : MonoBehaviour
     public float handOffset = 0.025f;
     public float ikBlendSpeed = 8f;
 
+    [Header("Tutorial")]
+    [SerializeField]
+    private TutorialManager tutorialManager;
+
     private bool isHoldingHands;
     private bool isSnapping;
     private float snapTimer;
@@ -123,6 +127,9 @@ public class HandHoldSystem : MonoBehaviour
             StartSnapAlign();
         else
             SnapAlignInstant();
+
+        if (tutorialManager != null)
+            tutorialManager.CompleteHandHoldObjective();
 
         Debug.Log("Start Holding Hands");
     }
